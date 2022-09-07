@@ -10,21 +10,27 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.slf4j.LoggerFactory
 
-class HotelBookingApiTest : BaseTest() {
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class BookingApiTest : BaseTest() {
+    private val logger = LoggerFactory.getLogger(BookingApiTest::class.java)
+
     private val bookingApi = BookingApi()
+    private val defaultBookingRequestBody = BookingFixture.defaultBooking
 
-    companion object {
-        private val defaultBookingRequestBody = BookingFixture.defaultBooking
-        @BeforeAll
-        fun setup() {
-            val queryParams = mapOf(
-                Pair("firstname", defaultBookingRequestBody.firstName),
-                Pair("lastname", defaultBookingRequestBody.lastName)
-            )
-            val bookingApi = BookingApi()
-            val bookingIds = bookingApi.getBookingIds(queryParams)
-            bookingIds.forEach { bookingApi.deleteBooking(it.bookingId!!) }
+    @BeforeAll
+    fun setup() {
+        logger.info("Cleaning up all bookings for user !!")
+        val queryParams = mapOf(
+            Pair("firstname", defaultBookingRequestBody.firstName),
+            Pair("lastname", defaultBookingRequestBody.lastName)
+        )
+        val bookingApi = BookingApi()
+        val bookingIds = bookingApi.getBookingIds(queryParams)
+        bookingIds.forEach {
+            bookingApi.deleteBooking(it.bookingId!!)
         }
     }
 

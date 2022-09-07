@@ -7,6 +7,6 @@ open class BaseTest  {
 
     @BeforeEach
     fun setup(testInfo: TestInfo) {
-        logger.info("Executing Test : ${testInfo.displayName} **********\n")
+        logger.info("\nExecuting Test : ${testInfo.displayName} **********\n")
     }
 }

@@ -4,7 +4,7 @@ import java.nio.file.Paths
 import java.util.*
 
 object ConfigManager {
-    private const val DEFAULT_URI = "default.uri"
+    private const val BASE_URI = "base.uri"
     private const val DEFAULT_USERNAME = "default.username"
     private const val DEFAULT_PASSWORD = "default.password"
 
@@ -22,8 +22,8 @@ object ConfigManager {
         return properties.getProperty(property)
     }
 
-    fun getDefaultUri(): String {
-        return getParameterValue("defaultUri", getConfig(DEFAULT_URI))
+    fun getBaseUri(): String {
+        return getParameterValue("baseUri", getConfig(BASE_URI))
     }
 
     fun getDefaultUsername(): String {

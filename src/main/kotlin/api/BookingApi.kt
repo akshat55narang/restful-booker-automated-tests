@@ -9,8 +9,11 @@ import models.Booking
 import models.BookingId
 import models.BookingResponse
 import org.apache.http.HttpStatus
+import org.slf4j.LoggerFactory
 
 class BookingApi : BaseApi(BOOKING_API_PATH) {
+    private val logger = LoggerFactory.getLogger(BookingApi::class.java)
+
     companion object {
         private const val BOOKING_API_PATH = "/booking"
     }
@@ -72,7 +75,10 @@ class BookingApi : BaseApi(BOOKING_API_PATH) {
         return patch(requestSpecification, "/$bookingId")
     }
 
-    fun deleteBookingResponse(bookingId: String) = delete(baseRequest(), bookingId)
+    fun deleteBookingResponse(bookingId: String): Response {
+        logger.info("Deleting booking with id $bookingId")
+        return delete(baseRequest(), bookingId)
+    }
 
     fun deleteBooking(bookingId: String) = deleteBookingResponse(bookingId)
         .then()
