@@ -46,6 +46,5 @@ return getParameterValue("baseUri", getConfig(BASE_URI))
 }
 
 ### Test Artifact Location
-Test Class - [BookingApiTest.kt](src/test/kotlin/BookingApiTest.kt)
 - Report - target/surefire-reports/BookingApiTest.txt
 
