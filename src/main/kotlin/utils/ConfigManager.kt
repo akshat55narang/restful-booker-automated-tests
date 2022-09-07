@@ -10,7 +10,7 @@ object ConfigManager {
 
     private fun loadProperties(): Properties {
         val properties = Properties()
-        val propertyFile = Paths.get(javaClass.getResource("/default.properties").toURI()).toFile()
+        val propertyFile = Paths.get(javaClass.getResource("/default.properties")!!.toURI()).toFile()
         val reader = FileInputStream(propertyFile)
         properties.load(reader)
         return properties

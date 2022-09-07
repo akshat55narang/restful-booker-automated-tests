@@ -24,7 +24,7 @@ class HotelBookingApiTest : BaseTest() {
             )
             val bookingApi = BookingApi()
             val bookingIds = bookingApi.getBookingIds(queryParams)
-            bookingIds.forEach { bookingApi.deleteBooking(it?.bookingId!!) }
+            bookingIds.forEach { bookingApi.deleteBooking(it.bookingId!!) }
         }
     }
 
@@ -166,6 +166,4 @@ class HotelBookingApiTest : BaseTest() {
             "Booking id with matching criteria $bookingId not present in list of booking ids"
         )
     }
-
-
 }
