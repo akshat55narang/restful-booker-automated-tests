@@ -47,4 +47,5 @@ return getParameterValue("baseUri", getConfig(BASE_URI))
 
 ### Test Artifact Location
 - Report - target/surefire-reports/BookingApiTest.txt
+- Html Report ( only generated when using `mvn clean surefire-report:report`) - target/site/surefire-report.html
 
