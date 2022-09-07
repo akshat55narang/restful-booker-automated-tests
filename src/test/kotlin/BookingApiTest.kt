@@ -22,7 +22,8 @@ class BookingApiTest : BaseTest() {
 
     @BeforeAll
     fun setup() {
-        logger.info("Cleaning up all bookings for user !!")
+        logger.info("Cleaning up all bookings default values with firstname ${defaultBookingRequestBody.firstName} and "
+               + "lastname ${defaultBookingRequestBody.lastName}!!")
         val queryParams = mapOf(
             Pair("firstname", defaultBookingRequestBody.firstName),
             Pair("lastname", defaultBookingRequestBody.lastName)
@@ -109,10 +110,10 @@ class BookingApiTest : BaseTest() {
             .response()
             .`as`(Booking::class.java)
 
-        assertEquals("Updated_Foo", response.firstName)
-        assertEquals("Updated_Bar", response.lastName)
-        assertEquals("2022-08-11", response.bookingDates.checkIn)
-        assertEquals("2022-08-20", response.bookingDates.checkOut)
+        assertEquals(bookingUpdateRequestBody.firstName, response.firstName)
+        assertEquals(bookingUpdateRequestBody.lastName, response.lastName)
+        assertEquals(bookingUpdateRequestBody.bookingDates.checkIn, response.bookingDates.checkIn)
+        assertEquals(bookingUpdateRequestBody.bookingDates.checkOut, response.bookingDates.checkOut)
 
     }
 
@@ -156,8 +157,11 @@ class BookingApiTest : BaseTest() {
             firstName = firstName,
             lastName = lastName,
         )
+        bookingApi.deleteBookingByName(firstName, lastName)
+
         val bookingId = bookingApi.createAndGetBookingId(bookingRequestBody)
         val queryParams = mapOf(Pair("firstname", firstName), Pair("lastname", lastName))
+
         val response = bookingApi.getBookingIdsResponse(queryParams)
             .then()
             .assertThat()
@@ -171,5 +175,7 @@ class BookingApiTest : BaseTest() {
             response.any { it.bookingId == bookingId },
             "Booking id with matching criteria $bookingId not present in list of booking ids"
         )
+        assertEquals(response.size, 1)
+
     }
 }

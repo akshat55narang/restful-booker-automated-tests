@@ -80,9 +80,16 @@ class BookingApi : BaseApi(BOOKING_API_PATH) {
         return delete(baseRequest(), bookingId)
     }
 
-    fun deleteBooking(bookingId: String) = deleteBookingResponse(bookingId)
-        .then()
-        .assertThat()
-        .statusCode(HttpStatus.SC_CREATED)
+    fun deleteBooking(bookingId: String) {
+        deleteBookingResponse(bookingId)
+            .then()
+            .assertThat()
+            .statusCode(HttpStatus.SC_CREATED)
+    }
+
+    fun deleteBookingByName(firstName: String, lastName: String) {
+        val bookingIds = getBookingIds(mapOf(Pair("firstname", firstName), Pair("lastname", lastName)))
+        bookingIds.forEach { deleteBooking(it.bookingId!!) }
+    }
 
 }
