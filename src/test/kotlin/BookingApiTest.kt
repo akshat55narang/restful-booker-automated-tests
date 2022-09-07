@@ -93,10 +93,15 @@ class BookingApiTest : BaseTest() {
 
     @Test
     fun `should be able to partially update booking`() {
+        val firstName = "Updated_Foo"
+        val lastName = "Updated_Bar"
+
+        bookingApi.deleteBookingByName(firstName, lastName)
+
         val bookingId = bookingApi.createAndGetBookingId()
         val bookingUpdateRequestBody = Booking(
-            firstName = "Updated_Foo",
-            lastName = "Updated_Bar",
+            firstName = firstName,
+            lastName = lastName,
             bookingDates = BookingDates(
                 checkIn = "2022-08-11",
                 checkOut = "2022-08-20"
