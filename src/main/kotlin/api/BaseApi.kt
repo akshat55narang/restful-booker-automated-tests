@@ -8,8 +8,8 @@ import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.http.ContentType
 import models.Auth
-import org.apache.http.HttpStatus
 import org.slf4j.LoggerFactory
+import utils.Helpers.assertStatusCode
 
 open class BaseApi(private val apiBasePath: String): RequestSenderImpl() {
 
@@ -26,9 +26,7 @@ open class BaseApi(private val apiBasePath: String): RequestSenderImpl() {
             .body(authRequestBody)
 
         val token: String = post(requestSpecification)
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_OK)
+            .assertStatusCode()
             .extract()
             .path("token")
         logger.info("Generated Access toke $token for user $userName")

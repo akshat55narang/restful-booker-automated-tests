@@ -1,8 +1,5 @@
 import api.BookingApi
 import fixtures.BookingFixture
-import helpers.TestHelpers.assertStatusCode
-import helpers.TestHelpers.assertStatusCodeAndContentType
-import helpers.TestHelpers.extractBodyAs
 import io.restassured.http.ContentType
 import models.Booking
 import models.BookingDates
@@ -15,6 +12,9 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.slf4j.LoggerFactory
+import utils.Helpers.assertStatusCode
+import utils.Helpers.assertStatusCodeAndContentType
+import utils.Helpers.extractBodyAs
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BookingApiTest : BaseTest() {
@@ -36,7 +36,7 @@ class BookingApiTest : BaseTest() {
         val bookingApi = BookingApi()
         val bookingIds = bookingApi.getBookingIds(queryParams)
         bookingIds.forEach {
-            bookingApi.deleteBooking(it.bookingId!!)
+            bookingApi.deleteBookingById(it.bookingId!!)
         }
     }
 
@@ -76,7 +76,7 @@ class BookingApiTest : BaseTest() {
         val firstName = "Updated_Foo"
         val lastName = "Updated_Bar"
 
-        bookingApi.deleteBookingByName(firstName, lastName)
+        bookingApi.deleteBookingsByName(firstName, lastName)
         val bookingId = bookingApi.createAndGetBookingId(defaultBookingRequestBody)
 
         val updateRequestBody = Booking(
@@ -135,7 +135,7 @@ class BookingApiTest : BaseTest() {
             firstName = firstName,
             lastName = lastName,
         )
-        bookingApi.deleteBookingByName(firstName, lastName)
+        bookingApi.deleteBookingsByName(firstName, lastName)
 
         val bookingId = bookingApi.createAndGetBookingId(bookingRequestBody)
         val queryParams = mapOf(Pair("firstname", firstName), Pair("lastname", lastName))

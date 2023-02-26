@@ -10,6 +10,9 @@ import models.BookingId
 import models.BookingResponse
 import org.apache.http.HttpStatus
 import org.slf4j.LoggerFactory
+import utils.Helpers.assertStatusCode
+import utils.Helpers.assertStatusCodeAndContentType
+import utils.Helpers.extractBodyAs
 
 class BookingApi : BaseApi(BOOKING_API_PATH) {
     private val logger = LoggerFactory.getLogger(BookingApi::class.java)
@@ -34,12 +37,8 @@ class BookingApi : BaseApi(BOOKING_API_PATH) {
             .header("Content-Type", ContentType.JSON)
             .body(requestBody)
         return post(requestSpecification)
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_OK)
-            .extract()
-            .response()
-            .`as`(BookingResponse::class.java)
+            .assertStatusCodeAndContentType()
+            .extractBodyAs(BookingResponse::class.java)
             .bookingId.toString()
     }
 
@@ -53,14 +52,9 @@ class BookingApi : BaseApi(BOOKING_API_PATH) {
 
     fun getBookingIds(queryParams: Map<String, String> = mapOf()): List<BookingId> =
         getBookingIdsResponse(queryParams)
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_OK)
-            .extract()
-            .response()
-            .`as`(Array<BookingId>::class.java)
+            .assertStatusCodeAndContentType()
+            .extractBodyAs(Array<BookingId>::class.java)
             .toList()
-
 
     fun partialUpdateBookingResponse(bookingId: String, updatedBooking: Booking): Response {
         val headers = Headers(
@@ -80,16 +74,13 @@ class BookingApi : BaseApi(BOOKING_API_PATH) {
         return delete(baseRequest(), bookingId)
     }
 
-    fun deleteBooking(bookingId: String) {
+    fun deleteBookingById(bookingId: String) =
         deleteBookingResponse(bookingId)
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_CREATED)
-    }
+            .assertStatusCode(HttpStatus.SC_CREATED)
 
-    fun deleteBookingByName(firstName: String, lastName: String) {
+    fun deleteBookingsByName(firstName: String, lastName: String) {
         val bookingIds = getBookingIds(mapOf(Pair("firstname", firstName), Pair("lastname", lastName)))
-        bookingIds.forEach { deleteBooking(it.bookingId!!) }
+        bookingIds.forEach { deleteBookingById(it.bookingId!!) }
     }
 
 }
