@@ -1,12 +1,15 @@
 import api.BookingApi
 import fixtures.BookingFixture
-import helpers.TestHelpers.assertBookingResponse
+import helpers.TestHelpers.assertStatusCode
+import helpers.TestHelpers.assertStatusCodeAndContentType
+import helpers.TestHelpers.extractBodyAs
+import io.restassured.http.ContentType
 import models.Booking
 import models.BookingDates
 import models.BookingId
 import models.BookingResponse
 import org.apache.http.HttpStatus
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -22,8 +25,10 @@ class BookingApiTest : BaseTest() {
 
     @BeforeAll
     fun setup() {
-        logger.info("Cleaning up all bookings default values with firstname ${defaultBookingRequestBody.firstName} and "
-               + "lastname ${defaultBookingRequestBody.lastName}!!")
+        logger.info(
+            "Cleaning up all bookings default values with firstname ${defaultBookingRequestBody.firstName} and "
+                    + "lastname ${defaultBookingRequestBody.lastName}!!"
+        )
         val queryParams = mapOf(
             Pair("firstname", defaultBookingRequestBody.firstName),
             Pair("lastname", defaultBookingRequestBody.lastName)
@@ -38,57 +43,32 @@ class BookingApiTest : BaseTest() {
 
     @Test
     fun `should be able to create booking`() {
+        val bookingResponse = bookingApi.createBookingResponse(defaultBookingRequestBody)
+            .assertStatusCode()
+            .extractBodyAs(BookingResponse::class.java)
 
-        val bookingResponseBody = bookingApi.createBookingResponse(defaultBookingRequestBody)
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_OK)
-            .extract()
-            .response()
-            .`as`(BookingResponse::class.java)
-            .booking
+        assertThat(bookingResponse.booking)
+            .usingRecursiveComparison()
+            .isEqualTo(defaultBookingRequestBody)
 
-        assertBookingResponse(
-            expectedFirstName = defaultBookingRequestBody.firstName,
-            expectedLastName = defaultBookingRequestBody.lastName,
-            expectedTotalPrice = defaultBookingRequestBody.totalPrice,
-            expectedDepositPaid = defaultBookingRequestBody.depositPaid,
-            expectedCheckInDate = defaultBookingRequestBody.bookingDates.checkIn,
-            expectedCheckOutDate = defaultBookingRequestBody.bookingDates.checkOut,
-            expectedAdditionalNeeds = defaultBookingRequestBody.additionalNeeds,
-            actualBookingResponse = bookingResponseBody
-        )
+        assertThat(bookingResponse.bookingId).isNotNull
 
     }
 
     @Test
     fun `should be able to get booking by id`() {
         val bookingId = bookingApi.createBookingResponse(defaultBookingRequestBody)
-            .then()
-            .statusCode(HttpStatus.SC_OK)
-            .extract()
-            .response()
-            .`as`(BookingResponse::class.java)
+            .assertStatusCode()
+            .extractBodyAs(BookingResponse::class.java)
             .bookingId
+
         val bookingResponse = bookingApi.getBookingByIdResponse(bookingId.toString())
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_OK)
-            .extract()
-            .response()
-            .`as`(Booking::class.java)
+            .assertStatusCode()
+            .extractBodyAs(Booking::class.java)
 
-        assertBookingResponse(
-            expectedFirstName = defaultBookingRequestBody.firstName,
-            expectedLastName = defaultBookingRequestBody.lastName,
-            expectedTotalPrice = defaultBookingRequestBody.totalPrice,
-            expectedDepositPaid = defaultBookingRequestBody.depositPaid,
-            expectedCheckInDate = defaultBookingRequestBody.bookingDates.checkIn,
-            expectedCheckOutDate = defaultBookingRequestBody.bookingDates.checkOut,
-            expectedAdditionalNeeds = defaultBookingRequestBody.additionalNeeds,
-            actualBookingResponse = bookingResponse
-        )
-
+        assertThat(bookingResponse)
+            .usingRecursiveComparison()
+            .isEqualTo(defaultBookingRequestBody)
     }
 
     @Test
@@ -97,9 +77,9 @@ class BookingApiTest : BaseTest() {
         val lastName = "Updated_Bar"
 
         bookingApi.deleteBookingByName(firstName, lastName)
+        val bookingId = bookingApi.createAndGetBookingId(defaultBookingRequestBody)
 
-        val bookingId = bookingApi.createAndGetBookingId()
-        val bookingUpdateRequestBody = Booking(
+        val updateRequestBody = Booking(
             firstName = firstName,
             lastName = lastName,
             bookingDates = BookingDates(
@@ -107,45 +87,38 @@ class BookingApiTest : BaseTest() {
                 checkOut = "2022-08-20"
             )
         )
-        val response = bookingApi.partialUpdateBookingResponse(bookingId, bookingUpdateRequestBody)
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_OK)
-            .extract()
-            .response()
-            .`as`(Booking::class.java)
 
-        assertEquals(bookingUpdateRequestBody.firstName, response.firstName)
-        assertEquals(bookingUpdateRequestBody.lastName, response.lastName)
-        assertEquals(bookingUpdateRequestBody.bookingDates.checkIn, response.bookingDates.checkIn)
-        assertEquals(bookingUpdateRequestBody.bookingDates.checkOut, response.bookingDates.checkOut)
+        val expectedResponse = updateRequestBody.copy(
+            totalPrice = defaultBookingRequestBody.totalPrice,
+            depositPaid = defaultBookingRequestBody.depositPaid,
+            additionalNeeds = defaultBookingRequestBody.additionalNeeds
+        )
 
+        val actualResponse = bookingApi.partialUpdateBookingResponse(bookingId, updateRequestBody)
+            .assertStatusCode()
+            .extractBodyAs(Booking::class.java)
+
+        assertThat(actualResponse)
+            .usingRecursiveComparison()
+            .isEqualTo(expectedResponse)
     }
 
     @Test
     fun `should be able to delete a booking`() {
         val bookingId = bookingApi.createAndGetBookingId()
         bookingApi.deleteBookingResponse(bookingId)
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_CREATED)
+            .assertStatusCodeAndContentType(statusCode = HttpStatus.SC_CREATED, contentType = ContentType.TEXT)
 
         bookingApi.getBookingByIdResponse(bookingId)
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_NOT_FOUND)
+            .assertStatusCode(statusCode = HttpStatus.SC_NOT_FOUND)
     }
 
     @Test
     fun `should be able to get all booking ids`() {
         val bookingId = bookingApi.createAndGetBookingId()
         val response = bookingApi.getBookingIdsResponse()
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_OK)
-            .extract()
-            .body()
-            .`as`(Array<BookingId>::class.java)
+            .assertStatusCodeAndContentType()
+            .extractBodyAs(Array<BookingId>::class.java)
             .toList()
 
         assertTrue(
@@ -167,20 +140,19 @@ class BookingApiTest : BaseTest() {
         val bookingId = bookingApi.createAndGetBookingId(bookingRequestBody)
         val queryParams = mapOf(Pair("firstname", firstName), Pair("lastname", lastName))
 
-        val response = bookingApi.getBookingIdsResponse(queryParams)
-            .then()
-            .assertThat()
-            .statusCode(HttpStatus.SC_OK)
-            .extract()
-            .body()
-            .`as`(Array<BookingId>::class.java)
+        val actualResponse = bookingApi.getBookingIdsResponse(queryParams)
+            .assertStatusCodeAndContentType()
+            .extractBodyAs(Array<BookingId>::class.java)
             .toList()
 
-        assertTrue(
-            response.any { it.bookingId == bookingId },
-            "Booking id with matching criteria $bookingId not present in list of booking ids"
-        )
-        assertEquals(response.size, 1)
+        assertThat(actualResponse)
+            .overridingErrorMessage(
+                "Booking id with matching criteria $bookingId "
+                        + "not present in list of booking ids"
+            )
+            .hasSize(1)
+            .allMatch { it.bookingId == bookingId }
+
 
     }
 }
