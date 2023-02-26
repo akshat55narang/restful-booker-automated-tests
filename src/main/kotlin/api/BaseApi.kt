@@ -7,14 +7,11 @@ import io.restassured.builder.RequestSpecBuilder
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.http.ContentType
-import io.restassured.module.kotlin.extensions.Given
-import io.restassured.module.kotlin.extensions.When
-import io.restassured.specification.RequestSpecification
 import models.Auth
 import org.apache.http.HttpStatus
 import org.slf4j.LoggerFactory
 
-open class BaseApi(private val apiBasePath: String) {
+open class BaseApi(private val apiBasePath: String): RequestSenderImpl() {
 
     private val logger = LoggerFactory.getLogger(BaseApi::class.java)
 
@@ -55,73 +52,4 @@ open class BaseApi(private val apiBasePath: String) {
     ) = baseRequestWithoutToken()
         .header("Cookie", "token=$token")
 
-    protected fun post(requestSpecification: RequestSpecification) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            post()
-        }
-
-    protected fun post(requestSpecification: RequestSpecification, path: String) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            post(path)
-        }
-
-    protected fun put(requestSpecification: RequestSpecification) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            put()
-        }
-
-    protected fun put(requestSpecification: RequestSpecification, path: String) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            put(path)
-        }
-
-    protected fun patch(requestSpecification: RequestSpecification) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            patch()
-        }
-
-    protected fun patch(requestSpecification: RequestSpecification, path: String) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            patch(path)
-        }
-
-    protected fun get(requestSpecification: RequestSpecification) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            get()
-        }
-
-    protected fun get(requestSpecification: RequestSpecification, path: String) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            get(path)
-        }
-
-    protected fun delete(requestSpecification: RequestSpecification) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            delete()
-        }
-
-    protected fun delete(requestSpecification: RequestSpecification, path: String) =
-        Given {
-            spec(requestSpecification)
-        } When {
-            delete(path)
-        }
 }
