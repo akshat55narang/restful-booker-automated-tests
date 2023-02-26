@@ -1,6 +1,10 @@
 package helpers
 
+import io.restassured.http.ContentType
+import io.restassured.response.Response
+import io.restassured.response.ValidatableResponse
 import models.Booking
+import org.apache.http.HttpStatus
 import org.assertj.core.api.SoftAssertions
 
 object TestHelpers {
@@ -29,4 +33,17 @@ object TestHelpers {
         softly.assertAll()
     }
 
+    fun Response.assertStatusCode(statusCode: Int = HttpStatus.SC_OK): ValidatableResponse = then()
+        .assertThat()
+        .statusCode(statusCode)
+
+    fun Response.assertStatusCodeAndContentType(
+        statusCode: Int = HttpStatus.SC_OK,
+        contentType: ContentType = ContentType.JSON
+    ): ValidatableResponse = assertStatusCode(statusCode)
+        .contentType(contentType)
+
+    fun <T> ValidatableResponse.extractBodyAs(cls: Class<T>) = extract()
+        .body()
+        .`as`(cls)
 }
