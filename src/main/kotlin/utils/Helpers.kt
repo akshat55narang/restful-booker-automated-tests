@@ -1,6 +1,10 @@
 package utils
 
+import io.restassured.http.ContentType
+import io.restassured.response.Response
+import io.restassured.response.ValidatableResponse
 import org.apache.commons.lang3.StringUtils
+import org.apache.http.HttpStatus
 import org.slf4j.LoggerFactory
 
 object Helpers {
@@ -19,4 +23,18 @@ object Helpers {
         }
         return result
     }
+
+    fun Response.assertStatusCode(statusCode: Int = HttpStatus.SC_OK): ValidatableResponse = then()
+        .assertThat()
+        .statusCode(statusCode)
+
+    fun Response.assertStatusCodeAndContentType(
+        statusCode: Int = HttpStatus.SC_OK,
+        contentType: ContentType = ContentType.JSON
+    ): ValidatableResponse = assertStatusCode(statusCode)
+        .contentType(contentType)
+
+    fun <T> ValidatableResponse.extractBodyAs(cls: Class<T>) = extract()
+        .body()
+        .`as`(cls)
 }
