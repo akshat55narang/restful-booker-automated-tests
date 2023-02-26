@@ -12,10 +12,11 @@
 
 ### Approach
 
-- [BaseApi](src/main/kotlin/api/BaseApi.kt) includes helper methods ( including wrappers around RestAssured methods )
+- [BaseApi](src/main/kotlin/api/BaseApi.kt) includes helper methods
   All extending classes can extend BaseApi to make API calls.
 - [BookingApi](src/main/kotlin/api/BookingApi.kt) Responsible for making API calls for all Booking Api operations
   and returning appropriate response.
+- [AuthApi](src/main/kotlin/api/AuthApi.kt) Responsible for generating access token
 - [BookingFixture](src/main/kotlin/fixtures/BookingFixture.kt) Supplies input data to BookingApi tests.
 - [BookingApiTest](src/test/kotlin/BookingApiTest.kt) Contains BookingApi tests. Responsible for calling BookingApi 
   methods and performing assertions on received response.
