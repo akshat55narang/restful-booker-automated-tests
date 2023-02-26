@@ -3,7 +3,7 @@ package api
 import ConfigManager.getBaseUri
 import ConfigManager.getDefaultPassword
 import ConfigManager.getDefaultUsername
-import api.RestConstants.AUTH_API
+import RestConstants.AUTH_API
 import io.restassured.http.ContentType
 import models.Auth
 import org.slf4j.LoggerFactory

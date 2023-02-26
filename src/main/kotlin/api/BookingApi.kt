@@ -1,7 +1,7 @@
 package api
 
 import ConfigManager.getBaseUri
-import api.RestConstants.BOOKING_API_PATH
+import RestConstants.BOOKING_API_PATH
 import fixtures.BookingFixture
 import io.restassured.http.ContentType
 import io.restassured.http.Header

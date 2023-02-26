@@ -1,5 +1,6 @@
 package api
 
+import RequestSenderImpl
 import io.restassured.builder.RequestSpecBuilder
 import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
