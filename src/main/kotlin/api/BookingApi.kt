@@ -1,5 +1,7 @@
 package api
 
+import ConfigManager.getBaseUri
+import api.RestConstants.BOOKING_API_PATH
 import fixtures.BookingFixture
 import io.restassured.http.ContentType
 import io.restassured.http.Header
@@ -14,12 +16,9 @@ import utils.Helpers.assertStatusCode
 import utils.Helpers.assertStatusCodeAndContentType
 import utils.Helpers.extractBodyAs
 
-class BookingApi : BaseApi(BOOKING_API_PATH) {
+class BookingApi : BaseApi(uri = getBaseUri(), apiBasePath = BOOKING_API_PATH) {
     private val logger = LoggerFactory.getLogger(BookingApi::class.java)
-
-    companion object {
-        private const val BOOKING_API_PATH = "/booking"
-    }
+    private val accessToken = AuthApi().generateAccessToken()
 
     fun createBookingResponse(
         requestBody: Booking = BookingFixture.defaultBooking
@@ -63,7 +62,7 @@ class BookingApi : BaseApi(BOOKING_API_PATH) {
                 Header("Content-Type", ContentType.JSON.toString())
             )
         )
-        val requestSpecification = baseRequest()
+        val requestSpecification = baseRequest(token = accessToken)
             .headers(headers)
             .body(updatedBooking)
         return patch(requestSpecification, "/$bookingId")
@@ -71,7 +70,7 @@ class BookingApi : BaseApi(BOOKING_API_PATH) {
 
     fun deleteBookingResponse(bookingId: String): Response {
         logger.info("Deleting booking with id $bookingId")
-        return delete(baseRequest(), bookingId)
+        return delete(baseRequest(token = accessToken), bookingId)
     }
 
     fun deleteBookingById(bookingId: String) =
