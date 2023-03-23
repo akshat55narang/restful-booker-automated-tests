@@ -24,9 +24,10 @@ object Helpers {
         return result
     }
 
-    fun Response.assertStatusCode(statusCode: Int = HttpStatus.SC_OK): ValidatableResponse = then()
-        .assertThat()
-        .statusCode(statusCode)
+    fun Response.assertStatusCode(statusCode: Int = HttpStatus.SC_OK): ValidatableResponse =
+        then()
+            .assertThat()
+            .statusCode(statusCode)
 
     fun Response.assertStatusCodeAndContentType(
         statusCode: Int = HttpStatus.SC_OK,
@@ -34,7 +35,8 @@ object Helpers {
     ): ValidatableResponse = assertStatusCode(statusCode)
         .contentType(contentType)
 
-    fun <T> ValidatableResponse.extractBodyAs(cls: Class<T>) = extract()
-        .body()
-        .`as`(cls)
+    fun <T> ValidatableResponse.extractBodyAs(cls: Class<T>) =
+        extract()
+            .body()
+            .`as`(cls)
 }
