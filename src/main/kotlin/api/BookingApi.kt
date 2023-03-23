@@ -1,6 +1,5 @@
 package api
 
-import ConfigManager.getBaseUri
 import RestConstants.BOOKING_API_PATH
 import fixtures.BookingFixture
 import io.restassured.http.ContentType
@@ -16,9 +15,12 @@ import utils.Helpers.assertStatusCode
 import utils.Helpers.assertStatusCodeAndContentType
 import utils.Helpers.extractBodyAs
 
-class BookingApi : BaseApi(uri = getBaseUri(), apiBasePath = BOOKING_API_PATH) {
+class BookingApi(basePath: String = BOOKING_API_PATH) : BaseApi(basePath = basePath) {
     private val logger = LoggerFactory.getLogger(BookingApi::class.java)
-    private val accessToken = AuthApi().generateAccessToken()
+
+    companion object {
+        private val accessToken = AuthApi().generateAccessToken()
+    }
 
     fun createBookingResponse(
         requestBody: Booking = BookingFixture.defaultBooking
@@ -55,6 +57,7 @@ class BookingApi : BaseApi(uri = getBaseUri(), apiBasePath = BOOKING_API_PATH) {
             .extractBodyAs(Array<BookingId>::class.java)
             .toList()
 
+
     fun partialUpdateBookingResponse(bookingId: String, updatedBooking: Booking): Response {
         val headers = Headers(
             listOf(
@@ -73,6 +76,8 @@ class BookingApi : BaseApi(uri = getBaseUri(), apiBasePath = BOOKING_API_PATH) {
         return delete(baseRequest(token = accessToken), bookingId)
     }
 
+    fun deleteBooking(bookingId: String) = deleteBookingResponse(bookingId)
+        .assertStatusCode(HttpStatus.SC_CREATED)
     fun deleteBookingById(bookingId: String) =
         deleteBookingResponse(bookingId)
             .assertStatusCode(HttpStatus.SC_CREATED)

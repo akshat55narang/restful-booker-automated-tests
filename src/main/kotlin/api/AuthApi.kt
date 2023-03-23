@@ -1,33 +1,30 @@
 package api
 
-import ConfigManager.getBaseUri
 import ConfigManager.getDefaultPassword
 import ConfigManager.getDefaultUsername
 import RestConstants.AUTH_API
 import io.restassured.http.ContentType
+import io.restassured.response.Response
 import models.Auth
-import org.slf4j.LoggerFactory
-import utils.Helpers.assertStatusCode
+import models.AuthResponse
+import utils.Helpers.assertStatusCodeAndContentType
+import utils.Helpers.extractBodyAs
 
-class AuthApi : BaseApi(uri = getBaseUri(), apiBasePath = AUTH_API) {
-    private val logger = LoggerFactory.getLogger(AuthApi::class.java)
+class AuthApi(basePath: String = AUTH_API): BaseApi(basePath = basePath) {
 
-    fun generateAccessToken(
-        userName: String = getDefaultUsername(),
-        password: String = getDefaultPassword(),
-    ): String {
-        val authRequestBody = Auth(userName, password)
-        val requestSpecification = baseRequestWithoutToken(basePath = "/auth")
-            .noFilters()
-            .header("Content-Type", ContentType.JSON)
-            .body(authRequestBody)
+    fun generateAccessToken(): String =
+        sendCreateTokenRequest()
+            .assertStatusCodeAndContentType()
+            .extractBodyAs(AuthResponse::class.java)
+            .token
 
-        val token: String = post(requestSpecification)
-            .assertStatusCode()
-            .extract()
-            .path("token")
-        logger.info("Generated Access toke $token for user $userName")
 
-        return token
+    fun sendCreateTokenRequest(username: String = getDefaultUsername(), password: String = getDefaultPassword()): Response {
+        val requestBody = Auth(username, password)
+        val requestSpecification = baseRequestWithoutToken()
+            .contentType(ContentType.JSON)
+            .body(requestBody)
+
+        return post(requestSpecification)
     }
 }
