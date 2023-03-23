@@ -33,7 +33,6 @@ class BookingApiTest : BaseTest() {
             Pair("firstname", defaultBookingRequestBody.firstName),
             Pair("lastname", defaultBookingRequestBody.lastName)
         )
-        val bookingApi = BookingApi()
         val bookingIds = bookingApi.getBookingIds(queryParams)
         bookingIds.forEach {
             bookingApi.deleteBookingById(it.bookingId!!)
