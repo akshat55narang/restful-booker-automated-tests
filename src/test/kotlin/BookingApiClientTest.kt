@@ -1,4 +1,4 @@
-import api.BookingApi
+import api.BookingApiClient
 import fixtures.BookingFixture
 import io.restassured.http.ContentType
 import models.Booking
@@ -17,10 +17,10 @@ import utils.Helpers.assertStatusCodeAndContentType
 import utils.Helpers.extractBodyAs
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class BookingApiTest : BaseTest() {
-    private val logger = LoggerFactory.getLogger(BookingApiTest::class.java)
+class BookingApiClientTest : BaseTest() {
+    private val logger = LoggerFactory.getLogger(BookingApiClientTest::class.java)
 
-    private val bookingApi = BookingApi()
+    private val bookingApiClient = BookingApiClient()
     private val defaultBookingRequestBody = BookingFixture.defaultBooking
 
     @BeforeAll
@@ -33,16 +33,15 @@ class BookingApiTest : BaseTest() {
             Pair("firstname", defaultBookingRequestBody.firstName),
             Pair("lastname", defaultBookingRequestBody.lastName)
         )
-        val bookingIds = bookingApi.getBookingIds(queryParams)
+        val bookingIds = bookingApiClient.getBookingIds(queryParams)
         bookingIds.forEach {
-            bookingApi.deleteBookingById(it.bookingId!!)
+            bookingApiClient.deleteBookingById(it.bookingId!!)
         }
     }
 
-
     @Test
     fun `should be able to create booking`() {
-        val bookingResponse = bookingApi.createBookingResponse(defaultBookingRequestBody)
+        val bookingResponse = bookingApiClient.createBookingResponse(defaultBookingRequestBody)
             .assertStatusCode()
             .extractBodyAs(BookingResponse::class.java)
 
@@ -56,12 +55,12 @@ class BookingApiTest : BaseTest() {
 
     @Test
     fun `should be able to get booking by id`() {
-        val bookingId = bookingApi.createBookingResponse(defaultBookingRequestBody)
+        val bookingId = bookingApiClient.createBookingResponse(defaultBookingRequestBody)
             .assertStatusCode()
             .extractBodyAs(BookingResponse::class.java)
             .bookingId
 
-        val bookingResponse = bookingApi.getBookingByIdResponse(bookingId.toString())
+        val bookingResponse = bookingApiClient.getBookingByIdResponse(bookingId.toString())
             .assertStatusCode()
             .extractBodyAs(Booking::class.java)
 
@@ -75,8 +74,8 @@ class BookingApiTest : BaseTest() {
         val firstName = "Updated_Foo"
         val lastName = "Updated_Bar"
 
-        bookingApi.deleteBookingsByName(firstName, lastName)
-        val bookingId = bookingApi.createAndGetBookingId(defaultBookingRequestBody)
+        bookingApiClient.deleteBookingsByName(firstName, lastName)
+        val bookingId = bookingApiClient.createAndGetBookingId(defaultBookingRequestBody)
 
         val updateRequestBody = Booking(
             firstName = firstName,
@@ -93,7 +92,7 @@ class BookingApiTest : BaseTest() {
             additionalNeeds = defaultBookingRequestBody.additionalNeeds
         )
 
-        val actualResponse = bookingApi.partialUpdateBookingResponse(bookingId, updateRequestBody)
+        val actualResponse = bookingApiClient.partialUpdateBookingResponse(bookingId, updateRequestBody)
             .assertStatusCode()
             .extractBodyAs(Booking::class.java)
 
@@ -104,18 +103,18 @@ class BookingApiTest : BaseTest() {
 
     @Test
     fun `should be able to delete a booking`() {
-        val bookingId = bookingApi.createAndGetBookingId()
-        bookingApi.deleteBookingResponse(bookingId)
+        val bookingId = bookingApiClient.createAndGetBookingId()
+        bookingApiClient.deleteBookingResponse(bookingId)
             .assertStatusCodeAndContentType(statusCode = HttpStatus.SC_CREATED, contentType = ContentType.TEXT)
 
-        bookingApi.getBookingByIdResponse(bookingId)
+        bookingApiClient.getBookingByIdResponse(bookingId)
             .assertStatusCode(statusCode = HttpStatus.SC_NOT_FOUND)
     }
 
     @Test
     fun `should be able to get all booking ids`() {
-        val bookingId = bookingApi.createAndGetBookingId()
-        val response = bookingApi.getBookingIdsResponse()
+        val bookingId = bookingApiClient.createAndGetBookingId()
+        val response = bookingApiClient.getBookingIdsResponse()
             .assertStatusCodeAndContentType()
             .extractBodyAs(Array<BookingId>::class.java)
             .toList()
@@ -134,12 +133,12 @@ class BookingApiTest : BaseTest() {
             firstName = firstName,
             lastName = lastName,
         )
-        bookingApi.deleteBookingsByName(firstName, lastName)
+        bookingApiClient.deleteBookingsByName(firstName, lastName)
 
-        val bookingId = bookingApi.createAndGetBookingId(bookingRequestBody)
+        val bookingId = bookingApiClient.createAndGetBookingId(bookingRequestBody)
         val queryParams = mapOf(Pair("firstname", firstName), Pair("lastname", lastName))
 
-        val actualResponse = bookingApi.getBookingIdsResponse(queryParams)
+        val actualResponse = bookingApiClient.getBookingIdsResponse(queryParams)
             .assertStatusCodeAndContentType()
             .extractBodyAs(Array<BookingId>::class.java)
             .toList()

@@ -10,7 +10,7 @@ import models.AuthResponse
 import utils.Helpers.assertStatusCodeAndContentType
 import utils.Helpers.extractBodyAs
 
-class AuthApi(basePath: String = AUTH_API): BaseApi(basePath = basePath) {
+class AuthApiClient(basePath: String = AUTH_API): BaseRequestSpecProvider(basePath = basePath) {
 
     fun generateAccessToken(): String =
         sendCreateTokenRequest()
@@ -19,9 +19,9 @@ class AuthApi(basePath: String = AUTH_API): BaseApi(basePath = basePath) {
             .token
 
 
-    fun sendCreateTokenRequest(username: String = getDefaultUsername(), password: String = getDefaultPassword()): Response {
+    private fun sendCreateTokenRequest(username: String = getDefaultUsername(), password: String = getDefaultPassword()): Response {
         val requestBody = Auth(username, password)
-        val requestSpecification = baseRequestWithoutToken()
+        val requestSpecification = baseRequestSpecificationWithoutToken()
             .contentType(ContentType.JSON)
             .body(requestBody)
 

@@ -6,9 +6,9 @@ import io.restassured.filter.log.RequestLoggingFilter
 import io.restassured.filter.log.ResponseLoggingFilter
 import io.restassured.specification.RequestSpecification
 
-abstract class BaseApi(private val baseUri: String = getBaseUri(), private val basePath: String) : RequestSenderImpl() {
+abstract class BaseRequestSpecProvider(private val baseUri: String = getBaseUri(), private val basePath: String) : RequestSenderImpl() {
 
-    fun baseRequestWithoutToken(): RequestSpecification = RequestSpecBuilder()
+    fun baseRequestSpecificationWithoutToken(): RequestSpecification = RequestSpecBuilder()
         .setBaseUri(baseUri)
         .setBasePath(basePath)
         .setRelaxedHTTPSValidation()
@@ -16,6 +16,6 @@ abstract class BaseApi(private val baseUri: String = getBaseUri(), private val b
         .addFilter(ResponseLoggingFilter())
         .build()
 
-    protected fun baseRequest(token: String) = baseRequestWithoutToken()
+    protected fun baseRequestSpecificationWithToken(token: String): RequestSpecification = baseRequestSpecificationWithoutToken()
         .header("Cookie", "token=$token")
 }

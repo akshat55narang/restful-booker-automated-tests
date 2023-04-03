@@ -15,17 +15,17 @@ import utils.Helpers.assertStatusCode
 import utils.Helpers.assertStatusCodeAndContentType
 import utils.Helpers.extractBodyAs
 
-class BookingApi(basePath: String = BOOKING_API_PATH) : BaseApi(basePath = basePath) {
-    private val logger = LoggerFactory.getLogger(BookingApi::class.java)
+class BookingApiClient() : BaseRequestSpecProvider(basePath = BOOKING_API_PATH) {
+    private val logger = LoggerFactory.getLogger(BookingApiClient::class.java)
 
     companion object {
-        private val accessToken = AuthApi().generateAccessToken()
+        private val accessToken = AuthApiClient().generateAccessToken()
     }
 
     fun createBookingResponse(
         requestBody: Booking = BookingFixture.defaultBooking
     ): Response {
-        val requestSpecification = baseRequestWithoutToken()
+        val requestSpecification = baseRequestSpecificationWithoutToken()
             .header("Content-Type", ContentType.JSON)
             .body(requestBody)
         return post(requestSpecification)
@@ -34,7 +34,7 @@ class BookingApi(basePath: String = BOOKING_API_PATH) : BaseApi(basePath = baseP
     fun createAndGetBookingId(
         requestBody: Booking = BookingFixture.defaultBooking
     ): String {
-        val requestSpecification = baseRequestWithoutToken()
+        val requestSpecification = baseRequestSpecificationWithoutToken()
             .header("Content-Type", ContentType.JSON)
             .body(requestBody)
         return post(requestSpecification)
@@ -43,10 +43,10 @@ class BookingApi(basePath: String = BOOKING_API_PATH) : BaseApi(basePath = baseP
             .bookingId.toString()
     }
 
-    fun getBookingByIdResponse(bookingId: String): Response = get(baseRequestWithoutToken(), "/$bookingId")
+    fun getBookingByIdResponse(bookingId: String): Response = get(baseRequestSpecificationWithoutToken(), "/$bookingId")
 
     fun getBookingIdsResponse(queryParams: Map<String, String> = mapOf()): Response {
-        val requestSpecification = baseRequestWithoutToken()
+        val requestSpecification = baseRequestSpecificationWithoutToken()
             .queryParams(queryParams)
         return get(requestSpecification)
     }
@@ -65,7 +65,7 @@ class BookingApi(basePath: String = BOOKING_API_PATH) : BaseApi(basePath = baseP
                 Header("Content-Type", ContentType.JSON.toString())
             )
         )
-        val requestSpecification = baseRequest(token = accessToken)
+        val requestSpecification = baseRequestSpecificationWithToken(token = accessToken)
             .headers(headers)
             .body(updatedBooking)
         return patch(requestSpecification, "/$bookingId")
@@ -73,11 +73,9 @@ class BookingApi(basePath: String = BOOKING_API_PATH) : BaseApi(basePath = baseP
 
     fun deleteBookingResponse(bookingId: String): Response {
         logger.info("Deleting booking with id $bookingId")
-        return delete(baseRequest(token = accessToken), bookingId)
+        return delete(baseRequestSpecificationWithToken(token = accessToken), bookingId)
     }
 
-    fun deleteBooking(bookingId: String) = deleteBookingResponse(bookingId)
-        .assertStatusCode(HttpStatus.SC_CREATED)
     fun deleteBookingById(bookingId: String) =
         deleteBookingResponse(bookingId)
             .assertStatusCode(HttpStatus.SC_CREATED)
