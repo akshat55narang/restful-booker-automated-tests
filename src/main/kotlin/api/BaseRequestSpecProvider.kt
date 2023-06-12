@@ -32,3 +32,4 @@ abstract class BaseRequestSpecProvider(private val baseUri: String = getBaseUri(
         )
     }
 }
+
