@@ -1,6 +1,9 @@
-package api
+package api.client
 
-import RestConstants.BOOKING_API_PATH
+import RestConstants.BOOKING_ENDPOINT
+import api.BaseRequestSpecProvider
+import arrow.core.Either
+import arrow.core.right
 import fixtures.BookingFixture
 import io.restassured.http.ContentType
 import io.restassured.http.Header
@@ -11,21 +14,20 @@ import models.BookingId
 import models.BookingResponse
 import org.apache.http.HttpStatus
 import org.slf4j.LoggerFactory
+import types.BasicAuthToken
+import types.UserRole
 import utils.Helpers.assertStatusCode
 import utils.Helpers.assertStatusCodeAndContentType
 import utils.Helpers.extractBodyAs
 
-class BookingApiClient() : BaseRequestSpecProvider(basePath = BOOKING_API_PATH) {
+class BookingApiClient : BaseRequestSpecProvider(basePath = BOOKING_ENDPOINT) {
     private val logger = LoggerFactory.getLogger(BookingApiClient::class.java)
 
-    companion object {
-        private val accessToken = AuthApiClient().generateAccessToken()
-    }
 
-    fun createBookingResponse(
+    fun createBooking(
         requestBody: Booking = BookingFixture.defaultBooking
     ): Response {
-        val requestSpecification = baseRequestSpecificationWithoutToken()
+        val requestSpecification = requestSpecWithoutAuthHeader()
             .header("Content-Type", ContentType.JSON)
             .body(requestBody)
         return post(requestSpecification)
@@ -34,19 +36,19 @@ class BookingApiClient() : BaseRequestSpecProvider(basePath = BOOKING_API_PATH) 
     fun createAndGetBookingId(
         requestBody: Booking = BookingFixture.defaultBooking
     ): String {
-        val requestSpecification = baseRequestSpecificationWithoutToken()
+        val requestSpecification = requestSpecWithoutAuthHeader()
             .header("Content-Type", ContentType.JSON)
             .body(requestBody)
         return post(requestSpecification)
             .assertStatusCodeAndContentType()
-            .extractBodyAs(BookingResponse::class.java)
+            .extractBodyAs<BookingResponse>()
             .bookingId.toString()
     }
 
-    fun getBookingByIdResponse(bookingId: String): Response = get(baseRequestSpecificationWithoutToken(), "/$bookingId")
+    fun getBookingById(bookingId: String): Response = get(requestSpecWithoutAuthHeader(), "/$bookingId")
 
     fun getBookingIdsResponse(queryParams: Map<String, String> = mapOf()): Response {
-        val requestSpecification = baseRequestSpecificationWithoutToken()
+        val requestSpecification = requestSpecWithoutAuthHeader()
             .queryParams(queryParams)
         return get(requestSpecification)
     }
@@ -54,30 +56,37 @@ class BookingApiClient() : BaseRequestSpecProvider(basePath = BOOKING_API_PATH) 
     fun getBookingIds(queryParams: Map<String, String> = mapOf()): List<BookingId> =
         getBookingIdsResponse(queryParams)
             .assertStatusCodeAndContentType()
-            .extractBodyAs(Array<BookingId>::class.java)
+            .extractBodyAs<Array<BookingId>>()
             .toList()
 
 
-    fun partialUpdateBookingResponse(bookingId: String, updatedBooking: Booking): Response {
+    fun partialUpdateBooking(
+        authMechanism: Either<BasicAuthToken, UserRole> = UserRole.ADMIN.right(),
+        bookingId: String,
+        updatedBooking: Booking
+    ): Response {
         val headers = Headers(
             listOf(
                 Header("Accept", ContentType.JSON.toString()),
                 Header("Content-Type", ContentType.JSON.toString())
             )
         )
-        val requestSpecification = baseRequestSpecificationWithToken(token = accessToken)
+        val requestSpecification = requestSpec(authMechanism = authMechanism)
             .headers(headers)
             .body(updatedBooking)
         return patch(requestSpecification, "/$bookingId")
     }
 
-    fun deleteBookingResponse(bookingId: String): Response {
+    fun deleteBooking(
+        authMechanism: Either<BasicAuthToken, UserRole> = UserRole.ADMIN.right(),
+        bookingId: String
+    ): Response {
         logger.info("Deleting booking with id $bookingId")
-        return delete(baseRequestSpecificationWithToken(token = accessToken), bookingId)
+        return delete(requestSpec(authMechanism = authMechanism), bookingId)
     }
 
     fun deleteBookingById(bookingId: String) =
-        deleteBookingResponse(bookingId)
+        deleteBooking(bookingId = bookingId)
             .assertStatusCode(HttpStatus.SC_CREATED)
 
     fun deleteBookingsByName(firstName: String, lastName: String) {

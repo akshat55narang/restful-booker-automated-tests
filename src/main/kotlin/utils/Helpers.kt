@@ -35,8 +35,8 @@ object Helpers {
     ): ValidatableResponse = assertStatusCode(statusCode)
         .contentType(contentType)
 
-    fun <T> ValidatableResponse.extractBodyAs(cls: Class<T>) =
+    inline fun <reified T> ValidatableResponse.extractBodyAs() =
         extract()
             .body()
-            .`as`(cls)
+            .`as`(T::class.java)
 }

@@ -1,18 +1,29 @@
 package api
 
+import io.restassured.RestAssured.config
+import io.restassured.config.LogConfig
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.response.Response
 import io.restassured.specification.RequestSpecification
 
 open class RequestSenderImpl: RequestSender {
+
+    init {
+        val loggingConfig = LogConfig.logConfig()
+            .blacklistHeaders(mutableListOf("Cookie", "Authorization"))
+            .enableLoggingOfRequestAndResponseIfValidationFails()
+
+        config = config().logConfig(loggingConfig)
+
+    }
+
     override fun get(requestSpecification: RequestSpecification, path: String): Response =
         Given {
             spec(requestSpecification)
         } When {
             get(path)
         }
-
 
     override fun post(requestSpecification: RequestSpecification, path: String): Response =
         Given {
