@@ -5,7 +5,6 @@ import fixtures.BookingFixture.defaultBooking
 import fixtures.BookingFixture.updateRequestBody
 import io.restassured.http.ContentType
 import models.Booking
-import models.BookingDates
 import models.BookingId
 import models.BookingResponse
 import org.apache.http.HttpStatus
@@ -21,7 +20,6 @@ import types.UserRole
 import utils.Helpers.assertStatusCode
 import utils.Helpers.assertStatusCodeAndContentType
 import utils.Helpers.extractBodyAs
-import kotlin.math.exp
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class BookingApiTest : BaseTest() {

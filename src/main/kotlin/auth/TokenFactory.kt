@@ -2,8 +2,8 @@ package auth
 
 import RestConstants.defaultPassword
 import RestConstants.defaultUsername
-import api.client.AuthApiClient
 import api.RequestSenderImpl
+import api.client.AuthApiClient
 import models.AuthResponse
 import types.UserRole
 import utils.Helpers.assertStatusCodeAndContentType

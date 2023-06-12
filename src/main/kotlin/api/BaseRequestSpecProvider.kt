@@ -2,7 +2,6 @@ package api
 
 import ConfigManager.getBaseUri
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.right
 import auth.TokenFactory.BASIC_AUTH_HEADER_TOKEN
 import auth.TokenFactory.getTokenFor

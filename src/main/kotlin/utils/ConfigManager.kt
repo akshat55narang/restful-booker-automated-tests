@@ -1,7 +1,7 @@
 import utils.Helpers.getParameterValue
 import java.io.FileInputStream
 import java.nio.file.Paths
-import java.util.Properties
+import java.util.*
 
 object ConfigManager {
     private const val BASE_URI = "base.uri"

@@ -1,9 +1,7 @@
 package api
 
-import io.restassured.RestAssured
 import io.restassured.RestAssured.config
 import io.restassured.config.LogConfig
-import io.restassured.config.RestAssuredConfig
 import io.restassured.module.kotlin.extensions.Given
 import io.restassured.module.kotlin.extensions.When
 import io.restassured.response.Response
